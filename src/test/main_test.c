@@ -3,5 +3,5 @@
 
 int main_test(int argc, char* argv[])
 {
-    return TestLog(argc, argv);
+    return TestStrUtil(argc, argv);
 }
