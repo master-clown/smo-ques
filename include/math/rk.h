@@ -4,8 +4,10 @@
 
 
 typedef real(*rfunc_t)(const uint dim,
+                       const uint func_idx,
                        const real arg,
-                       const real y_vec[]);
+                       const real y_vec[],
+                       void* user_data);
 
 struct RungeKuttaInfo
 {
@@ -43,6 +45,7 @@ extern void RkMakeStep(const struct RungeKuttaInfo* rk,
                        const real dt,
                        const real arg,
                        const uint dim,
-                       const rfunc_t rhs[],
+                       const rfunc_t rhs,
                        real y_vec[],
-                       struct RungeKuttaContext* rkctx);
+                       struct RungeKuttaContext* rkctx,
+                       void* user_data);

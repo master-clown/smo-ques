@@ -55,22 +55,30 @@ static bool ParseInputCmd(const char* cmd, struct SmoInfo* smo)
     buf[cmd_len] = '\0';
     StrToLower(buf);
 
+    char* it_comment = strchr(buf, ';');
+    if(it_comment)
+    {
+        *it_comment = '\0';
+        if(StrIsNullOrSpace(buf))
+        { res = true; goto lbl_cleanup; }
+    }
+
     tok = strtok_s(buf, "\t =,", &ctx);
     for(; tok; ++num_tok)
     {
         tok_lst[num_tok] = tok;
         tok = strtok_s(NULL, "\t =,", &ctx);
     }
+
+// now parse the command
+    if(1 <= num_tok && strchr(";[", tok_lst[0][0]))                                    // comment or section (like in .ini files)
+    {
+        res = true;
+        goto lbl_cleanup;
+    }
     if(num_tok < 2)
     {
         LogPrintE("Invalid syntax for input line '%s'.", cmd);
-        goto lbl_cleanup;
-    }
-
-// now parse the command
-    if(strchr("!;[", tok_lst[0][0]))                                    // comment or section (like in .ini files)
-    {
-        res = true;
         goto lbl_cleanup;
     }
 
@@ -94,6 +102,16 @@ static bool ParseInputCmd(const char* cmd, struct SmoInfo* smo)
         }
     }
     else
+    if(StrStartsWith(tok_lst[0], PARAM_LEAVING_RATE))
+    {
+        smo->LeavingRate = strtod(tok_lst[1], &num_conv_end);
+        if(tok_lst[1] == num_conv_end)
+        {
+            LogPrintE("Cannot parse number value in the command '%s'.", cmd);
+            goto lbl_cleanup;
+        }
+    }
+    else
     if(StrStartsWith(tok_lst[0], PARAM_CHANNEL_NUM))
     {
         smo->ChannelNum = strtoul(tok_lst[1], &num_conv_end, 10);
@@ -107,6 +125,36 @@ static bool ParseInputCmd(const char* cmd, struct SmoInfo* smo)
     if(StrStartsWith(tok_lst[0], PARAM_QUEUE_LEN))
     {
         smo->QueueLen = strtoul(tok_lst[1], &num_conv_end, 10);
+        if(tok_lst[1] == num_conv_end)
+        {
+            LogPrintE("Cannot parse number value in the command '%s'.", cmd);
+            goto lbl_cleanup;
+        }
+    }
+    else
+    if(StrStartsWith(tok_lst[0], PARAM_TIME_START))
+    {
+        smo->SimTimeBeg = strtod(tok_lst[1], &num_conv_end);
+        if(tok_lst[1] == num_conv_end)
+        {
+            LogPrintE("Cannot parse number value in the command '%s'.", cmd);
+            goto lbl_cleanup;
+        }
+    }
+    else
+    if(StrStartsWith(tok_lst[0], PARAM_TIME_END))
+    {
+        smo->SimTimeEnd = strtod(tok_lst[1], &num_conv_end);
+        if(tok_lst[1] == num_conv_end)
+        {
+            LogPrintE("Cannot parse number value in the command '%s'.", cmd);
+            goto lbl_cleanup;
+        }
+    }
+    else
+    if(StrStartsWith(tok_lst[0], PARAM_NUM_STEP))
+    {
+        smo->SimNumStep = strtoul(tok_lst[1], &num_conv_end, 10);
         if(tok_lst[1] == num_conv_end)
         {
             LogPrintE("Cannot parse number value in the command '%s'.", cmd);

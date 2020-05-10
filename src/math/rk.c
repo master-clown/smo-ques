@@ -69,9 +69,10 @@ void RkMakeStep(const struct RungeKuttaInfo* rk,
                 const real dt,
                 const real arg,
                 const uint dim,
-                const rfunc_t rhs[],
+                const rfunc_t rhs,
                 real y_vec[],
-                struct RungeKuttaContext* rkctx)
+                struct RungeKuttaContext* rkctx,
+                void* user_data)
 {
     real* K          = rkctx->K;
     real* y_arg      = rkctx->YArg;
@@ -96,7 +97,7 @@ void RkMakeStep(const struct RungeKuttaInfo* rk,
         const real ci = *RkGetC(rk, i);
         for(uint r = 0; r < dim; ++r)
         {
-            K[K_bi + r] = (*rhs[r])(dim, arg + dt*ci, y_arg);
+            K[K_bi + r] = (*rhs)(dim, r, arg + dt*ci, y_arg, user_data);
             y_vec[r] += dt*bi * K[K_bi + r];
         }
     }
