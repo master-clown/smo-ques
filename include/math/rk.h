@@ -16,9 +16,9 @@ struct RungeKuttaInfo
     uint PrecOrder;
 };
 
-extern void RkAllocInfo(const uint precision_order,
+extern void RkInfoAlloc(const uint precision_order,
                         struct RungeKuttaInfo* rk);
-extern void RkFreeInfo(struct RungeKuttaInfo* rk);
+extern void RkInfoFree(struct RungeKuttaInfo* rk);
 
 extern real* RkGetA(const struct RungeKuttaInfo* rk,
                     const uint i, const uint j);
@@ -27,9 +27,22 @@ extern real* RkGetB(const struct RungeKuttaInfo* rk,
 extern real* RkGetC(const struct RungeKuttaInfo* rk,
                     const uint i);
 
+struct RungeKuttaContext
+{
+    real* K;
+    real* YArg;
+    real* YVecCopy;
+};
+
+extern void RkCtxInit(const struct RungeKuttaInfo* rk,
+                      const uint dim,
+                      struct RungeKuttaContext* rkctx);
+extern void RkCtxFree(struct RungeKuttaContext* rkctx);
+
 extern void RkMakeStep(const struct RungeKuttaInfo* rk,
                        const real dt,
                        const real arg,
                        const uint dim,
                        const rfunc_t rhs[],
-                       real y_vec[]);
+                       real y_vec[],
+                       struct RungeKuttaContext* rkctx);

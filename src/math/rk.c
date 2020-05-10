@@ -3,7 +3,7 @@
 #include <string.h>
 
 
-void RkAllocInfo(const uint precision_order,
+void RkInfoAlloc(const uint precision_order,
                  struct RungeKuttaInfo* rk)
 {
     const uint po = rk->PrecOrder = precision_order;
@@ -14,7 +14,7 @@ void RkAllocInfo(const uint precision_order,
     rk->VecC[0] = 0.0;
 }
 
-void RkFreeInfo(struct RungeKuttaInfo* rk)
+void RkInfoFree(struct RungeKuttaInfo* rk)
 {
     rk->PrecOrder = 0;
     SAFE_DEL(rk->MatA);
@@ -49,16 +49,33 @@ real* RkGetC(const struct RungeKuttaInfo* rk,
     return &rk->VecC[i];
 }
 
+void RkCtxInit(const struct RungeKuttaInfo* rk,
+               const uint dim,
+               struct RungeKuttaContext* rkctx)
+{
+    rkctx->K        = malloc(rk->PrecOrder*dim*sizeof(real));
+    rkctx->YArg     = malloc(dim*sizeof(real));
+    rkctx->YVecCopy = malloc(dim*sizeof(real));
+}
+
+void RkCtxFree(struct RungeKuttaContext* rkctx)
+{
+    SAFE_DEL(rkctx->K);
+    SAFE_DEL(rkctx->YArg);
+    SAFE_DEL(rkctx->YVecCopy);
+}
+
 void RkMakeStep(const struct RungeKuttaInfo* rk,
                 const real dt,
                 const real arg,
                 const uint dim,
                 const rfunc_t rhs[],
-                real y_vec[])
+                real y_vec[],
+                struct RungeKuttaContext* rkctx)
 {
-    real* K     = malloc(rk->PrecOrder*dim*sizeof(real));
-    real* y_arg = malloc(dim*sizeof(real));
-    real* y_vec_copy = malloc(dim*sizeof(real));
+    real* K          = rkctx->K;
+    real* y_arg      = rkctx->YArg;
+    real* y_vec_copy = rkctx->YVecCopy;
     memcpy(y_vec_copy, y_vec, dim*sizeof(real));
 
     // loop to eval K
@@ -83,8 +100,4 @@ void RkMakeStep(const struct RungeKuttaInfo* rk,
             y_vec[r] += dt*bi * K[K_bi + r];
         }
     }
-
-    free(y_vec_copy);
-    free(y_arg);
-    free(K);
 }

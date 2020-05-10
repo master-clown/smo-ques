@@ -14,8 +14,12 @@ static real TestRef2(const uint dim, const real arg, const real y_vec[]);
 
 int TestRungeKutta(int argc, char* argv[])
 {
+#define DIM 2
+
     struct RungeKuttaInfo rk;
+    struct RungeKuttaContext rkctx;
     InitRkThreeEighth(&rk);
+    RkCtxInit(&rk, DIM, &rkctx);
 
     const rfunc_t rhs[] = { &TestRhs1, &TestRhs2 };
     const real a = 0.0;
@@ -32,29 +36,30 @@ int TestRungeKutta(int argc, char* argv[])
     solx[0] = refx[0] = soly[0] = refy[0] = 0.0;
 
     real time = 0.0;
-    real cv[2]  = { solx[0], soly[0] };                                                // current value (at current step)
-    real rcv[2] = { refx[0], refy[0] };                                                // reference cv
+    real cv[DIM]  = { solx[0], soly[0] };                                                // current value (at current step)
+    real rcv[DIM] = { refx[0], refy[0] };                                                // reference cv
     for(uint s = 0; s < ndiv; ++s)
     {
         time += dt;
 
-        RkMakeStep(&rk, dt, time, 2, rhs, cv);
+        RkMakeStep(&rk, dt, time, DIM, rhs, cv, &rkctx);
         solx[s+1] = cv[0]; soly[s+1] = cv[1];
 
-        refx[s+1] = TestRef1(2, time, rcv);
-        refy[s+1] = TestRef2(2, time, rcv);
+        refx[s+1] = TestRef1(DIM, time, rcv);
+        refy[s+1] = TestRef2(DIM, time, rcv);
     }
 
     const real* vec_lst[] = { solx, refx, soly, refy };
     OutputVecLst("test/TestRungeKutta/sol.txt",
                  "SOLUTION COMPARISON",
-                 vec_lst, 4, ndiv+1);
+                 vec_lst, 2*DIM, ndiv+1);
 
     free(refy);
     free(refx);
     free(soly);
     free(solx);
-    RkFreeInfo(&rk);
+    RkCtxFree(&rkctx);
+    RkInfoFree(&rk);
 
     return 0;
 }
@@ -62,7 +67,7 @@ int TestRungeKutta(int argc, char* argv[])
 
 static void InitRkThreeEighth(struct RungeKuttaInfo* rk)
 {
-    RkAllocInfo(4, rk);
+    RkInfoAlloc(4, rk);
 
     *RkGetA(rk, 1, 0) = 1/3.0;
     *RkGetA(rk, 2, 0) =-1/3.0;
