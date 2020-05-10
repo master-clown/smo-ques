@@ -8,6 +8,8 @@ set(HEADERS
     include/def/defs.h
     include/def/strutil.h
     include/io/input.h
+    include/io/output.h
+    include/math/rk.h
     include/test/test.h
     include/util/datetime.h
     include/util/log.h
@@ -16,9 +18,13 @@ set(HEADERS
 set(SOURCES
     src/def/strutil.c
     src/io/input.c
-    src/test/testlog.c
-    src/test/teststrutil.c
+    src/io/output.c
+    src/math/rk.c
     src/test/main_test.c
+    src/test/testio.c
+    src/test/testlog.c
+    src/test/testrk.c
+    src/test/teststrutil.c
     src/util/datetime.c
     src/util/log.c
     src/util/thread.c
