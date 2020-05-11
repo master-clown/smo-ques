@@ -5,6 +5,7 @@
 
 bool OutputVecLst(const char* fn,
                   const char* title,
+                  const char* gr_title_lst[],
                   const real* vec_mat[],
                   const uint num_vec,
                   const uint dim)
@@ -16,10 +17,13 @@ bool OutputVecLst(const char* fn,
         return false;
     }
 
-//    fprintf(f, "%s\n\n\n%12s", title, "INDEX");
-//    for(uint i_v = 0; i_v < num_vec; ++i_v)
-//        fprintf(f, "%22s%02i", "VECTOR #", i_v);
-//    fprintf(f, "\n");
+    fprintf(f, "%s", title);
+    if(title[0] != '\0') fprintf(f, "\n\n");
+
+    fprintf(f, "%12s", "INDEX");
+    for(uint i_v = 0; i_v < num_vec; ++i_v)
+        fprintf(f, "%24s", gr_title_lst[i_v]);
+    fprintf(f, "\n");
 
     for(uint r = 0; r < dim; ++r)
     {

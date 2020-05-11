@@ -39,19 +39,30 @@ void SmoSolve(struct SmoInfo* si)
         for(uint i = 0; i < dim; ++i) sol[s+1 + i*tm] = cv[i];
     }
 
-    const real* vec_lst[6] = { &sol[0*tm],
-                               &sol[1*tm], &sol[2*tm],
-                               &sol[3*tm], &sol[4*tm],
-                               &sol[5*tm],};
+    const real* vec_lst[10] = { &sol[0*tm], &sol[1*tm],
+                                &sol[2*tm],
+
+                                            &sol[3*tm],
+                                &sol[4*tm], &sol[5*tm],
+                                &sol[6*tm], &sol[7*tm],
+                                &sol[6*tm], &sol[7*tm] } ;
+
+    const char* gr_title_lst[] =
+    {
+        "P[0](t)", "P[1](t)", "P[2](t)", "P[2+1](t)", "P[2+2](t)", "P[2+3](t)",
+        "P[2+4](t)", "P[2+5](t)", "P[2+6](t)", "P[2+7](t)", "P[2+8](t)"
+    };
 
     OutputVecLst("test/solve/sol.txt",
-                 "SOLUTION",
-                 vec_lst, 6, ndiv+1);
+                 "", gr_title_lst,
+                 vec_lst, 10, ndiv+1);
 
-    real sum = 0.0;
+    real sum = 0.0, sum_plot = 0.0;
     for(uint i = 0; i < dim; ++i) sum += cv[i];
+    for(uint i = 0; i < 10; ++i) sum_plot += cv[i];
 
-    LogPrint("The sum of solution at the last time moment = %.15lf", sum);
+    LogPrint("The sum of solution at the last time moment         = %.15lf", sum);
+    LogPrint("The sum of plotted solution at the last time moment = %.15lf", sum_plot);
 
     free(cv);
     free(sol);

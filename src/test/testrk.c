@@ -48,9 +48,15 @@ int TestRungeKutta(int argc, char* argv[])
         refy[s+1] = TestRef2(DIM, time, rcv);
     }
 
+    const char* gr_title_lst[] =
+    {
+        "NUM SOL, X", "NUM SOL, Y",
+        "REF SOL, X", "REF SOL, Y"
+    };
     const real* vec_lst[] = { solx, refx, soly, refy };
     OutputVecLst("test/TestRungeKutta/sol.txt",
                  "SOLUTION COMPARISON",
+                 gr_title_lst,
                  vec_lst, 2*DIM, ndiv+1);
 
     free(refy);
